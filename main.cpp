@@ -12,9 +12,11 @@ using namespace std;
 
 #include "header.h"
 
+deque<char *> commandList;
+
 int main()
 {
-    startShell();
+    startShell(commandList);
 
     return 0;
 }

@@ -1,6 +1,10 @@
 #include <bits/stdc++.h>
+#include <stdio.h>
 #include <pwd.h>
+#include <string.h> // For strtok
 using namespace std;
+
+#include "header.h"
 
 #define BUFFER_SIZE 1024
 
@@ -16,7 +20,7 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
     return terminal;
 }
 
-void startShell()
+void startShell(deque<char *> &commandList)
 {
     while (1)
     {
@@ -47,12 +51,33 @@ void startShell()
 
         string terminalText = getTerminalName(userDetails, hostname, "~");
 
-        cout << terminalText;
-        string command;
-        cin >> command;
-        if (command == "exit")
+        printf("%s", terminalText.c_str());
+        string temp;
+        getline(cin, temp);
+
+        char *commands = new char[temp.length() + 1];
+        strcpy(commands, temp.c_str());
+
+        // Tokenize the input
+        char *command = strtok(commands, ";");
+        vector<char *> list;
+
+        while (command != NULL)
         {
-            break;
+            if (strcmp(command, "exit") == 0)
+            {
+                return;
+            }
+
+            commandList.push_front(command);
+            list.push_back(command);
+            command = strtok(NULL, ";");
+        }
+
+        for (auto listEl : list)
+        {
+            char *firstArg = strtok(listEl, " ");
+            executeCommand(firstArg, listEl);
         }
     }
 

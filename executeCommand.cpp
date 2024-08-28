@@ -1,10 +1,12 @@
 #include <bits/stdc++.h>
+#include <sys/wait.h> // For the wait command
 #include <string.h>
 using namespace std;
 
 #include "header.h"
+#define BUFFER_SIZE 1024
 
-void executeCommand(char *firstArg, char *command)
+void executeCommand(char *firstArg, char *totalCommand)
 {
     if (strcmp(firstArg, "pwd") == 0)
     {
@@ -16,10 +18,35 @@ void executeCommand(char *firstArg, char *command)
     }
     else if (strcmp(firstArg, "echo") == 0)
     {
-        execEcho(command);
+        execEcho(totalCommand);
     }
     else
     {
-        // Execvp
+        char *args[BUFFER_SIZE];
+        int i = 0;
+        char *tempCommand = strdup(totalCommand);
+
+        char *word = strtok(tempCommand, " ");
+        while (word != NULL)
+        {
+            args[i] = word;
+            i++;
+            word = strtok(NULL, " ");
+        }
+        args[i] = NULL;
+
+        pid_t processId = fork();
+        if (processId == 0)
+        {
+            if (execvp(firstArg, args) < 0)
+            {
+                printf("Error\n");
+            }
+        }
+        else
+        {
+            printf("Error in creating child process.\n");
+            wait(NULL);
+        }
     }
 }

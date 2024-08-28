@@ -1,3 +1,3 @@
 mainProg:
-	g++ -o a.out main.cpp displayShell.cpp executeCommand.cpp pwd.cpp
-	# ./a.out
+	g++ -o a.out main.cpp displayShell.cpp executeCommand.cpp pwd.cpp echo.cpp
+	./a.out

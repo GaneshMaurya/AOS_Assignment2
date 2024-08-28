@@ -54,7 +54,6 @@ void startShell(deque<char *> &commandList)
         printf("%s", terminalText.c_str());
         string temp;
         getline(cin, temp);
-
         char *commands = new char[temp.length() + 1];
         strcpy(commands, temp.c_str());
 
@@ -76,7 +75,8 @@ void startShell(deque<char *> &commandList)
 
         for (auto listEl : list)
         {
-            char *firstArg = strtok(listEl, " ");
+            char *temp = strdup(listEl);
+            char *firstArg = strtok(temp, " ");
             executeCommand(firstArg, listEl);
         }
     }

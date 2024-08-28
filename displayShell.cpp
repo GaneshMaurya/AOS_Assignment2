@@ -7,6 +7,7 @@ using namespace std;
 #include "header.h"
 
 #define BUFFER_SIZE 1024
+#define historySize 20
 
 string getTerminalName(struct passwd userDetails, char *hostname, string workingDir)
 {
@@ -22,6 +23,8 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
 
 void startShell(deque<char *> &commandList)
 {
+    initHistory(commandList);
+
     while (1)
     {
         char *buffer = (char *)malloc(BUFFER_SIZE);
@@ -68,7 +71,15 @@ void startShell(deque<char *> &commandList)
                 return;
             }
 
-            commandList.push_front(command);
+            if (commandList.size() < 20)
+            {
+                commandList.push_front(command);
+            }
+            else
+            {
+                commandList.pop_back();
+                commandList.push_front(command);
+            }
             list.push_back(command);
             command = strtok(NULL, ";");
         }
@@ -77,9 +88,11 @@ void startShell(deque<char *> &commandList)
         {
             char *temp = strdup(listEl);
             char *firstArg = strtok(temp, " ");
-            executeCommand(firstArg, listEl);
+            executeCommand(firstArg, listEl, commandList);
         }
     }
+
+    writeHistoryToFile(commandList);
 
     return;
 }

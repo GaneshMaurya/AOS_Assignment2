@@ -6,7 +6,7 @@ using namespace std;
 #include "header.h"
 #define BUFFER_SIZE 1024
 
-void executeCommand(char *firstArg, char *totalCommand)
+void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandList)
 {
     if (strcmp(firstArg, "pwd") == 0)
     {
@@ -14,7 +14,7 @@ void executeCommand(char *firstArg, char *totalCommand)
     }
     else if (strcmp(firstArg, "history") == 0)
     {
-        // printHistory();
+        printHistory(totalCommand, commandList);
     }
     else if (strcmp(firstArg, "echo") == 0)
     {
@@ -36,16 +36,20 @@ void executeCommand(char *firstArg, char *totalCommand)
         args[i] = NULL;
 
         pid_t processId = fork();
+        if (processId < 0)
+        {
+            printf("Error in creating child process.\n");
+        }
+
         if (processId == 0)
         {
             if (execvp(firstArg, args) < 0)
             {
-                printf("Error\n");
+                printf("Error in executing %s command", firstArg);
             }
         }
         else
         {
-            printf("Error in creating child process.\n");
             wait(NULL);
         }
     }

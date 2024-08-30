@@ -23,6 +23,8 @@ int main()
         printf("Error in retrieving current directory");
     }
     setCurrDirectory(currDirectory);
+    initHistory(commandList);
     startShell(commandList);
+    writeHistoryToFile(commandList);
     return 0;
 }

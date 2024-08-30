@@ -23,7 +23,7 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
 
 void startShell(deque<char *> &commandList)
 {
-    initHistory(commandList);
+    // initHistory(commandList);
 
     while (1)
     {
@@ -90,13 +90,24 @@ void startShell(deque<char *> &commandList)
         cout << "\033[36m" << terminalText.c_str() << "\033[0m";
         string temp;
         getline(cin, temp);
-        char *commands = new char[temp.length() + 1];
-        strcpy(commands, temp.c_str());
+        int start = 0;
+        for (int i = 0; i < temp.size(); i++)
+        {
+            if (temp[i] != ' ' && temp[i] != '\t')
+            {
+                start = i;
+                break;
+            }
+        }
+        string temp2 = temp.substr(start, temp.size() - start);
+        char *commands = new char[BUFFER_SIZE];
+        strcpy(commands, temp2.c_str());
 
         // Tokenize the input
         char *command = strtok(commands, ";");
         if (strcmp(command, "exit") == 0)
         {
+            commandList.push_front(command);
             return;
         }
         vector<char *> list;
@@ -105,17 +116,22 @@ void startShell(deque<char *> &commandList)
         {
             if (strcmp(command, "exit") == 0)
             {
+                commandList.push_front(command);
                 return;
             }
 
             if (commandList.size() < 20)
             {
-                commandList.push_front(command);
+                char *totalCommand = new char[BUFFER_SIZE];
+                strcpy(totalCommand, temp2.c_str());
+                commandList.push_front(totalCommand);
             }
             else
             {
+                char *totalCommand = new char[BUFFER_SIZE];
+                strcpy(totalCommand, temp2.c_str());
                 commandList.pop_back();
-                commandList.push_front(command);
+                commandList.push_front(totalCommand);
             }
             list.push_back(command);
             command = strtok(NULL, ";");
@@ -129,7 +145,7 @@ void startShell(deque<char *> &commandList)
         }
     }
 
-    writeHistoryToFile(commandList);
+    // writeHistoryToFile(commandList);
 
     return;
 }

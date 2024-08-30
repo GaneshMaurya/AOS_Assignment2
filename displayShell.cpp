@@ -23,8 +23,6 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
 
 void startShell(deque<char *> &commandList)
 {
-    // initHistory(commandList);
-
     while (1)
     {
         char *buffer = (char *)malloc(BUFFER_SIZE);
@@ -107,7 +105,15 @@ void startShell(deque<char *> &commandList)
         char *command = strtok(commands, ";");
         if (strcmp(command, "exit") == 0)
         {
-            commandList.push_front(command);
+            if (commandList.size() < 20)
+            {
+                commandList.push_front(command);
+            }
+            else
+            {
+                commandList.pop_back();
+                commandList.push_front(command);
+            }
             return;
         }
         vector<char *> list;
@@ -116,7 +122,15 @@ void startShell(deque<char *> &commandList)
         {
             if (strcmp(command, "exit") == 0)
             {
-                commandList.push_front(command);
+                if (commandList.size() < 20)
+                {
+                    commandList.push_front(command);
+                }
+                else
+                {
+                    commandList.pop_back();
+                    commandList.push_front(command);
+                }
                 return;
             }
 
@@ -144,8 +158,6 @@ void startShell(deque<char *> &commandList)
             executeCommand(firstArg, listEl, commandList);
         }
     }
-
-    // writeHistoryToFile(commandList);
 
     return;
 }

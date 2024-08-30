@@ -28,6 +28,10 @@ void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLi
     {
         execCD(firstArg, totalCommand);
     }
+    else if (strcmp(firstArg, "search") == 0)
+    {
+        searchFile(firstArg, totalCommand);
+    }
     else
     {
         char *args[BUFFER_SIZE];

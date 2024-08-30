@@ -25,3 +25,5 @@ bool isCurrDirHome();
 void setCurrDirectory(char *currDirectory);
 
 void execCD(char *firstArg, char *totalCommand);
+
+void searchFile(char *firstArg, char *totalCommand);

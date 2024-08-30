@@ -12,7 +12,6 @@ const char *HISTORY_FILE = "history.txt";
 
 void initHistory(deque<char *> &commandList)
 {
-    // const char *HISTORY_FILE = setHistoryFile();
     ifstream file(HISTORY_FILE);
     if (file.is_open() == true)
     {
@@ -20,6 +19,7 @@ void initHistory(deque<char *> &commandList)
         while (getline(file, line))
         {
             char *temp = new char[BUFFER_SIZE];
+            strcpy(temp, line.c_str());
             commandList.push_front(temp);
         }
 
@@ -33,11 +33,6 @@ void initHistory(deque<char *> &commandList)
 
 void writeHistoryToFile(deque<char *> &commandList)
 {
-    // To implement
-
-    // Handle the case when history file is already populated.
-    // Update the file in such a way that
-    // const char *HISTORY_FILE = setHistoryFile();
     ofstream file(HISTORY_FILE);
     if (file.is_open() == true)
     {

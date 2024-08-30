@@ -6,11 +6,19 @@ using namespace std;
 #include "header.h"
 
 #define BUFFER_SIZE 1024
+string prevDir = "";
+string currentDir = "";
 
 void execCD(char *firstArg, char *totalCommand)
 {
     char *dummy = strtok(totalCommand, " ");
     char *directoryName = strtok(NULL, " ");
+
+    if (prevDir == "" && currentDir == "")
+    {
+        currentDir = getCurrentDirectory();
+        prevDir = getCurrentDirectory();
+    }
 
     // Base case - only cd
     if (directoryName == NULL)
@@ -23,15 +31,36 @@ void execCD(char *firstArg, char *totalCommand)
     }
     else if (strcmp(directoryName, "~") == 0)
     {
+        string temp = currentDir;
         chdir(getHome());
         setCurrDirectory(getHome());
+        currentDir = getCurrentDirectory();
+        prevDir = temp;
     }
     else if (strcmp(directoryName, "..") == 0)
     {
+        string temp = currentDir;
         chdir("..");
+
         char *parentDirectory = (char *)malloc(BUFFER_SIZE);
         getcwd(parentDirectory, BUFFER_SIZE);
         setCurrDirectory(parentDirectory);
+
+        currentDir = getCurrentDirectory();
+        prevDir = temp;
+    }
+    else if (strcmp(directoryName, "-") == 0)
+    {
+
+        string temp = currentDir;
+
+        char *redirectHere = new char[BUFFER_SIZE];
+        strcpy(redirectHere, prevDir.c_str());
+
+        chdir(redirectHere);
+        setCurrDirectory(redirectHere);
+        currentDir = getCurrentDirectory();
+        prevDir = temp;
     }
     else
     {
@@ -43,7 +72,12 @@ void execCD(char *firstArg, char *totalCommand)
                      << endl;
                 return;
             }
+            string temp = currentDir;
             setCurrDirectory(directoryName);
+            currentDir = getCurrentDirectory();
+            prevDir = temp;
+            cout << currentDir << endl;
+            cout << prevDir << endl;
         }
         else
         {
@@ -58,7 +92,13 @@ void execCD(char *firstArg, char *totalCommand)
             char *dummy = new char[BUFFER_SIZE];
             strcpy(dummy, temp.c_str());
             strcat(dummy, directoryName);
+
+            string temp2 = currentDir;
             setCurrDirectory(dummy);
+            currentDir = getCurrentDirectory();
+            prevDir = temp2;
+            cout << currentDir << endl;
+            cout << prevDir << endl;
         }
     }
 }

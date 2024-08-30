@@ -27,3 +27,5 @@ void setCurrDirectory(char *currDirectory);
 void execCD(char *firstArg, char *totalCommand);
 
 void searchFile(char *firstArg, char *totalCommand);
+
+void execPinfo(char *firstArg, char *totalCommand);

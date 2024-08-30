@@ -32,6 +32,10 @@ void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLi
     {
         searchFile(firstArg, totalCommand);
     }
+    else if (strcmp(firstArg, "pinfo") == 0)
+    {
+        execPinfo(firstArg, totalCommand);
+    }
     else
     {
         char *args[BUFFER_SIZE];

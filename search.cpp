@@ -7,6 +7,23 @@ using namespace std;
 
 #define BUFFER_SIZE 1024
 
+bool isDirectory(string path)
+{
+    struct stat dirStat;
+    if (stat(path.c_str(), &dirStat) == -1)
+    {
+        cout << "Error in getting the stat of file/folder.\n";
+        return false;
+    }
+
+    if (S_ISDIR(dirStat.st_mode))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool dfs(string fileName, string folderName)
 {
     DIR *directory = opendir(folderName.c_str());
@@ -19,7 +36,6 @@ bool dfs(string fileName, string folderName)
     while (dirInfo != NULL)
     {
         string newFolder = folderName + "/" + dirInfo->d_name;
-        struct stat dirStat;
 
         if (dirInfo->d_name[0] != '.')
         {
@@ -29,21 +45,13 @@ bool dfs(string fileName, string folderName)
                 return true;
             }
 
-            if (stat(newFolder.c_str(), &dirStat) == 0)
+            if (isDirectory(newFolder))
             {
-                if (S_ISDIR(dirStat.st_mode) == true)
+                if (dfs(fileName, newFolder) == true)
                 {
-                    if (dfs(fileName, newFolder) == true)
-                    {
-                        closedir(directory);
-                        return true;
-                    }
+                    closedir(directory);
+                    return true;
                 }
-            }
-            else
-            {
-                cout << "Error in getting stat of folder.\n";
-                return false;
             }
         }
 

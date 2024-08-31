@@ -88,6 +88,17 @@ void startShell(deque<char *> &commandList)
         cout << "\033[36m" << terminalText.c_str() << "\033[0m";
         string temp;
         getline(cin, temp);
+
+        if (temp.empty())
+        {
+            if (cin.eof())
+            {
+                cout << "\n";
+                return;
+            }
+            continue;
+        }
+
         int start = 0;
         for (int i = 0; i < temp.size(); i++)
         {

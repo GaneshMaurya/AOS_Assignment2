@@ -29,3 +29,7 @@ void execCD(char *firstArg, char *totalCommand);
 void searchFile(char *firstArg, char *totalCommand);
 
 void execPinfo(char *firstArg, char *totalCommand);
+
+void execBackground(char *firstArg, char *totalCommand);
+
+void execForeground(char *firstArg, char *totalCommand);

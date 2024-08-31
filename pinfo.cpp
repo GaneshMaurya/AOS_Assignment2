@@ -28,9 +28,9 @@ void execPinfo(char *firstArg, char *totalCommand)
             buffer = strtok(NULL, " ");
         }
 
-        cout << "pid -- " << procData[0] << "\n";
+        cout << "PID -- " << procData[0] << "\n";
         cout << "Process Status -- " << procData[2] << "\n";
-        cout << "memory -- " << procData[22] << "\n";
+        cout << "Memory -- " << procData[22] << " B\n";
 
         string execPath = "/proc/" + processId + "/exe";
         char *execFile = new char[BUFFER_SIZE];

@@ -6,9 +6,39 @@ using namespace std;
 #include "header.h"
 #define BUFFER_SIZE 1024
 
+bool containsLastAnd(char *str)
+{
+    string command = str;
+    string last;
+    string temp = "";
+    for (int i = 0; i < command.size(); i++)
+    {
+        if (command[i] == ' ')
+        {
+            last = temp;
+            temp = "";
+        }
+        else
+        {
+            temp += command[i];
+        }
+    }
+    last = temp;
+    if (last == "&")
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandList)
 {
-    if (strcmp(firstArg, "pwd") == 0)
+    if (strlen(totalCommand) > 0 && containsLastAnd(totalCommand) == true)
+    {
+        execBackground(firstArg, totalCommand);
+    }
+    else if (strcmp(firstArg, "pwd") == 0)
     {
         printCurrDirectory();
     }

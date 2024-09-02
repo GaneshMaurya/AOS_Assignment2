@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <time.h>
 #include <unistd.h>
 using namespace std;
 
@@ -41,6 +42,64 @@ void printHiddenFiles(char *currDirectory)
     cout << "\n";
 
     closedir(directory);
+}
+
+string permissions(struct stat fileInfo)
+{
+    mode_t mode = fileInfo.st_mode;
+    string perm = "----------";
+
+    if (S_ISDIR(mode) == 1)
+    {
+        perm[0] = 'd';
+    }
+    if (mode & 0400)
+    {
+        perm[1] = 'r';
+    }
+    if (mode & 0200)
+    {
+        perm[2] = 'w';
+    }
+    if (mode & 0100)
+    {
+        perm[3] = 'x';
+    }
+    if (mode & 0040)
+    {
+        perm[4] = 'r';
+    }
+    if (mode & 0020)
+    {
+        perm[5] = 'w';
+    }
+    if (mode & 0010)
+    {
+        perm[6] = 'x';
+    }
+    if (mode & 0004)
+    {
+        perm[7] = 'r';
+    }
+    if (mode & 0002)
+    {
+        perm[8] = 'w';
+    }
+    if (mode & 0001)
+    {
+        perm[9] = 'x';
+    }
+
+    return perm;
+}
+
+void printTime(struct stat fileInfo)
+{
+    struct tm *info = localtime(&fileInfo.st_mtime);
+    char *time = new char[BUFFER_SIZE];
+    strftime(time, BUFFER_SIZE, "%b %d %H:%M", info);
+
+    cout << time << "\t";
 }
 
 void execLs(char *firstArg, char *totalCommand)
@@ -114,7 +173,7 @@ void execLs(char *firstArg, char *totalCommand)
             }
 
             int total = 0;
-            cout << "total " << total << "\n";
+            cout << "total " << dirInfo.st_blocks << "\n";
 
             char *username = (char *)malloc(BUFFER_SIZE);
             char *buffer = (char *)malloc(BUFFER_SIZE);
@@ -127,9 +186,15 @@ void execLs(char *firstArg, char *totalCommand)
                 if (directoryInfo->d_name[0] != '.')
                 {
                     struct stat fileInfo;
-                    stat(currDir, &fileInfo);
+                    string fname = directoryInfo->d_name;
+                    string path = getCurrentDirectory() + (string) "/" + fname;
+
+                    stat(path.c_str(), &fileInfo);
+                    string perms = permissions(fileInfo);
+                    cout << perms << "\t";
+
                     cout << fileInfo.st_nlink << "\t";
-                    cout << directoryInfo->d_name << "\t";
+
                     struct passwd userDetails;
                     struct passwd *result1;
 
@@ -141,10 +206,17 @@ void execLs(char *firstArg, char *totalCommand)
 
                     getpwuid_r(dirInfo.st_gid, &groupDetails, buffer, BUFFER_SIZE, &result2);
                     cout << userDetails.pw_name << "\t";
+                    cout << fileInfo.st_size << "\t";
+
+                    printTime(fileInfo);
+                    cout << directoryInfo->d_name << "\t";
+
+                    cout << "\n";
                 }
                 directoryInfo = readdir(directory);
-                cout << "\n";
             }
+
+            closedir(directory);
         }
         else if (strcmp(v[1], "-la") == 0)
         {

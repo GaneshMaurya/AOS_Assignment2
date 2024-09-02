@@ -102,6 +102,119 @@ void printTime(struct stat fileInfo)
     cout << time << "\t";
 }
 
+void displayHiddenLs(const char *currDir)
+{
+    struct stat dirInfo;
+    // const char *currDir = getCurrentDirectory();
+
+    if (stat(currDir, &dirInfo) == -1)
+    {
+        cout << "There is some error in getting the details of the folder.\n";
+        return;
+    }
+
+    int total = 0;
+    cout << "total " << dirInfo.st_blocks << "\n";
+
+    char *username = (char *)malloc(BUFFER_SIZE);
+    char *buffer = (char *)malloc(BUFFER_SIZE);
+
+    DIR *directory = opendir(getCurrentDirectory());
+    struct dirent *directoryInfo = readdir(directory);
+
+    while (directoryInfo != NULL)
+    {
+        struct stat fileInfo;
+        string fname = directoryInfo->d_name;
+        string path = getCurrentDirectory() + (string) "/" + fname;
+
+        stat(path.c_str(), &fileInfo);
+        string perms = permissions(fileInfo);
+        cout << perms << "\t";
+
+        cout << fileInfo.st_nlink << "\t";
+
+        struct passwd userDetails;
+        struct passwd *result1;
+
+        getpwuid_r(dirInfo.st_uid, &userDetails, buffer, BUFFER_SIZE, &result1);
+        cout << userDetails.pw_name << "\t";
+
+        struct passwd groupDetails;
+        struct passwd *result2;
+
+        getpwuid_r(dirInfo.st_gid, &groupDetails, buffer, BUFFER_SIZE, &result2);
+        cout << userDetails.pw_name << "\t";
+        cout << fileInfo.st_size << "\t";
+
+        printTime(fileInfo);
+        cout << directoryInfo->d_name << "\t";
+
+        cout << "\n";
+        directoryInfo = readdir(directory);
+    }
+
+    closedir(directory);
+}
+
+void displayLs(const char *currDir)
+{
+    struct stat dirInfo;
+    // const char *currDir = getCurrentDirectory();
+
+    if (stat(currDir, &dirInfo) == -1)
+    {
+        cout << "There is some error in getting the details of the folder.\n";
+        return;
+    }
+
+    int total = 0;
+    cout << "total " << dirInfo.st_blocks << "\n";
+
+    char *username = (char *)malloc(BUFFER_SIZE);
+    char *buffer = (char *)malloc(BUFFER_SIZE);
+
+    DIR *directory = opendir(getCurrentDirectory());
+    struct dirent *directoryInfo = readdir(directory);
+
+    while (directoryInfo != NULL)
+    {
+        if (directoryInfo->d_name[0] != '.')
+        {
+            struct stat fileInfo;
+            string fname = directoryInfo->d_name;
+            string path = getCurrentDirectory() + (string) "/" + fname;
+
+            stat(path.c_str(), &fileInfo);
+            string perms = permissions(fileInfo);
+            cout << perms << "\t";
+
+            cout << fileInfo.st_nlink << "\t";
+
+            struct passwd userDetails;
+            struct passwd *result1;
+
+            getpwuid_r(dirInfo.st_uid, &userDetails, buffer, BUFFER_SIZE, &result1);
+            cout << userDetails.pw_name << "\t";
+
+            struct passwd groupDetails;
+            struct passwd *result2;
+
+            getpwuid_r(dirInfo.st_gid, &groupDetails, buffer, BUFFER_SIZE, &result2);
+            cout << userDetails.pw_name << "\t";
+            cout << fileInfo.st_size << "\t";
+
+            printTime(fileInfo);
+            cout << directoryInfo->d_name << "\t";
+
+            cout << "\n";
+        }
+        directoryInfo = readdir(directory);
+    }
+
+    closedir(directory);
+}
+
 void execLs(char *firstArg, char *totalCommand)
 {
     vector<char *> v;
@@ -163,66 +276,31 @@ void execLs(char *firstArg, char *totalCommand)
         }
         else if (strcmp(v[1], "-l") == 0)
         {
-            struct stat dirInfo;
             const char *currDir = getCurrentDirectory();
-
-            if (stat(currDir, &dirInfo) == -1)
-            {
-                cout << "There is some error in getting the details of the folder.\n";
-                return;
-            }
-
-            int total = 0;
-            cout << "total " << dirInfo.st_blocks << "\n";
-
-            char *username = (char *)malloc(BUFFER_SIZE);
-            char *buffer = (char *)malloc(BUFFER_SIZE);
-
-            DIR *directory = opendir(getCurrentDirectory());
-            struct dirent *directoryInfo = readdir(directory);
-
-            while (directoryInfo != NULL)
-            {
-                if (directoryInfo->d_name[0] != '.')
-                {
-                    struct stat fileInfo;
-                    string fname = directoryInfo->d_name;
-                    string path = getCurrentDirectory() + (string) "/" + fname;
-
-                    stat(path.c_str(), &fileInfo);
-                    string perms = permissions(fileInfo);
-                    cout << perms << "\t";
-
-                    cout << fileInfo.st_nlink << "\t";
-
-                    struct passwd userDetails;
-                    struct passwd *result1;
-
-                    getpwuid_r(dirInfo.st_uid, &userDetails, buffer, BUFFER_SIZE, &result1);
-                    cout << userDetails.pw_name << "\t";
-
-                    struct passwd groupDetails;
-                    struct passwd *result2;
-
-                    getpwuid_r(dirInfo.st_gid, &groupDetails, buffer, BUFFER_SIZE, &result2);
-                    cout << userDetails.pw_name << "\t";
-                    cout << fileInfo.st_size << "\t";
-
-                    printTime(fileInfo);
-                    cout << directoryInfo->d_name << "\t";
-
-                    cout << "\n";
-                }
-                directoryInfo = readdir(directory);
-            }
-
-            closedir(directory);
+            displayLs(currDir);
         }
         else if (strcmp(v[1], "-la") == 0)
         {
+            const char *currDir = getCurrentDirectory();
+            displayHiddenLs(currDir);
         }
         else if (strcmp(v[1], "-al") == 0)
         {
+            const char *currDir = getCurrentDirectory();
+            displayHiddenLs(currDir);
+        }
+    }
+    else if (v.size() == 3)
+    {
+        if (strcmp(v[1], "-a") == 0 && strcmp(v[2], "-l"))
+        {
+            const char *currDir = getCurrentDirectory();
+            displayHiddenLs(currDir);
+        }
+        else if (strcmp(v[1], "-l") == 0 && strcmp(v[2], "-a"))
+        {
+            const char *currDir = getCurrentDirectory();
+            displayHiddenLs(currDir);
         }
     }
     else

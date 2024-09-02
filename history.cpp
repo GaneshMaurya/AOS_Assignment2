@@ -70,7 +70,7 @@ void printHistory(char *totalCommand, deque<char *> &commandList)
     }
 
     vector<char *> commands(commandList.begin(), commandList.end());
-    for (int i = 0; i < num; i++)
+    for (int i = num - 1; i >= 0; i--)
     {
         cout << commands[i] << "\n";
     }

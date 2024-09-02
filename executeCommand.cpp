@@ -6,6 +6,8 @@ using namespace std;
 #include "header.h"
 #define BUFFER_SIZE 1024
 
+pid_t processId = 0;
+
 bool containsLastAnd(char *str)
 {
     string command = str;
@@ -32,11 +34,67 @@ bool containsLastAnd(char *str)
     return false;
 }
 
-void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandList)
+bool containsPipe(char *str)
 {
-    if (strlen(totalCommand) > 0 && containsLastAnd(totalCommand) == true)
+    int n = strlen(str);
+    for (int i = 0; i < n; i++)
     {
-        execBackground(firstArg, totalCommand);
+        if (str[i] == '|')
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandList)
+{
+    if (containsPipe(totalCommand))
+    {
+        execPipe(firstArg, totalCommand);
+    }
+    else if (strlen(totalCommand) > 0 && containsLastAnd(totalCommand) == true)
+    {
+        // processId = execBackground(firstArg, totalCommand);
+        char *args[BUFFER_SIZE];
+        int i = 0;
+        char *tempCommand = strdup(totalCommand);
+
+        char *word = strtok(tempCommand, " ");
+        while (word != NULL)
+        {
+            if (strcmp(word, "&") != 0)
+            {
+                args[i] = word;
+                i++;
+            }
+            word = strtok(NULL, " ");
+        }
+        args[i] = NULL;
+
+        pid_t processId = fork();
+
+        if (processId < 0)
+        {
+            printf("Error in creating child process.\n");
+        }
+
+        if (processId == 0)
+        {
+            if (setpgid(0, 0) < -1)
+            {
+                printf("Error.\n");
+            }
+            if (execvp(firstArg, args) == -1)
+            {
+                printf("Error in executing %s command.\n", firstArg);
+            }
+        }
+        else
+        {
+            cout << processId << "\n";
+        }
     }
     else if (strcmp(firstArg, "pwd") == 0)
     {
@@ -81,7 +139,7 @@ void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLi
         }
         args[i] = NULL;
 
-        pid_t processId = fork();
+        processId = fork();
         if (processId < 0)
         {
             printf("Error in creating child process.\n");
@@ -99,4 +157,5 @@ void executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLi
             wait(NULL);
         }
     }
+    return (processId != 0) ? processId : -1;
 }

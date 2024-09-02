@@ -9,6 +9,29 @@ using namespace std;
 #define BUFFER_SIZE 1024
 #define historySize 20
 
+pid_t pid = -1;
+
+void handleZ(int num)
+{
+    if (pid != -1)
+    {
+        cout << "Terminated\n";
+        kill(pid, SIGTSTP);
+        pid = 0;
+    }
+    cout << pid << endl;
+}
+
+void handleC(int num)
+{
+    if (pid != -1)
+    {
+        cout << "Interrupted\n";
+        kill(pid, SIGINT);
+        pid = 0;
+    }
+}
+
 string getTerminalName(struct passwd userDetails, char *hostname, string workingDir)
 {
     string terminal = userDetails.pw_name;
@@ -23,6 +46,8 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
 
 void startShell(deque<char *> &commandList)
 {
+    signal(SIGINT, handleC);
+    // signal(SIGTSTP, handleZ);
     while (1)
     {
         char *buffer = (char *)malloc(BUFFER_SIZE);
@@ -166,7 +191,7 @@ void startShell(deque<char *> &commandList)
         {
             char *temp = strdup(listEl);
             char *firstArg = strtok(temp, " ");
-            executeCommand(firstArg, listEl, commandList);
+            pid = executeCommand(firstArg, listEl, commandList);
         }
     }
 

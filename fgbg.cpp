@@ -4,7 +4,7 @@ using namespace std;
 
 #define BUFFER_SIZE 1024
 
-void execBackground(char *firstArg, char *totalCommand)
+int execBackground(char *firstArg, char *totalCommand)
 {
     char *args[BUFFER_SIZE];
     int i = 0;
@@ -23,6 +23,7 @@ void execBackground(char *firstArg, char *totalCommand)
     args[i] = NULL;
 
     pid_t processId = fork();
+
     if (processId < 0)
     {
         printf("Error in creating child process.\n");
@@ -43,4 +44,6 @@ void execBackground(char *firstArg, char *totalCommand)
     {
         cout << processId << "\n";
     }
+
+    return processId;
 }

@@ -1,6 +1,6 @@
 void startShell(deque<char *> &commandList);
 
-void executeCommand(char *firstArg, char *command, deque<char *> &commandList);
+int executeCommand(char *firstArg, char *command, deque<char *> &commandList);
 
 void printCurrDirectory();
 
@@ -30,6 +30,6 @@ void searchFile(char *firstArg, char *totalCommand);
 
 void execPinfo(char *firstArg, char *totalCommand);
 
-void execBackground(char *firstArg, char *totalCommand);
+int execBackground(char *firstArg, char *totalCommand);
 
-void execForeground(char *firstArg, char *totalCommand);
+void execPipe(char *firstArg, char *totalCommand);

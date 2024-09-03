@@ -33,3 +33,5 @@ void execPinfo(char *firstArg, char *totalCommand);
 int execBackground(char *firstArg, char *totalCommand);
 
 void execPipe(char *firstArg, char *totalCommand);
+
+void execRedirection(char *firstArg, char *totalCommand);

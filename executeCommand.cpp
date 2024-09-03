@@ -48,13 +48,31 @@ bool containsPipe(char *str)
     return false;
 }
 
+bool containsRedirection(char *str)
+{
+    int n = strlen(str);
+    for (int i = 0; i < n; i++)
+    {
+        if (str[i] == '<' || str[i] == '>')
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandList)
 {
     if (containsPipe(totalCommand))
     {
         execPipe(firstArg, totalCommand);
     }
-    else if (strlen(totalCommand) > 0 && containsLastAnd(totalCommand) == true)
+    else if (containsRedirection(totalCommand) == true)
+    {
+        execRedirection(firstArg, totalCommand);
+    }
+    else if (containsLastAnd(totalCommand) == true)
     {
         // processId = execBackground(firstArg, totalCommand);
         char *args[BUFFER_SIZE];

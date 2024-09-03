@@ -33,7 +33,7 @@ void runPipe(vector<char *> command, int inFd, int outFd)
             args[i] = command[i];
         }
 
-        cout << command[0] << endl;
+        // cout << command[0] << endl;
         if (execvp(command[0], args) == -1)
         {
             printf("Error in executing %s command.\n", command[0]);
@@ -73,7 +73,7 @@ void execPipe(char *firstArg, char *totalCommand)
     for (int i = 0; i < n - 1; i++)
     {
         pipe(pipes[i]);
-        cout << pipes[i][0] << " : " << pipes[i][1] << endl;
+        // cout << pipes[i][0] << " : " << pipes[i][1] << endl;
     }
 
     for (int i = 0; i < n - 1; i++)

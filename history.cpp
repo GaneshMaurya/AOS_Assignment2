@@ -2,16 +2,23 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <fstream>
-// #include "header.h"
 using namespace std;
+
+#include "header.h"
 
 #define printMax 10
 #define BUFFER_SIZE 1024
 
-const char *HISTORY_FILE = "history.txt";
+string getHistoryPath()
+{
+    string path = getHome() + (string) "/history.txt";
+    return path;
+}
 
 void initHistory(deque<char *> &commandList)
 {
+    string HISTORY_FILE = getHistoryPath();
+
     ifstream file(HISTORY_FILE);
     if (file.is_open() == true)
     {
@@ -27,12 +34,15 @@ void initHistory(deque<char *> &commandList)
     }
     else
     {
+        printf("Error in creating the history file.\n");
         return;
     }
 }
 
 void writeHistoryToFile(deque<char *> &commandList)
 {
+    string HISTORY_FILE = getHistoryPath();
+
     ofstream file(HISTORY_FILE);
     if (file.is_open() == true)
     {
@@ -66,7 +76,7 @@ void printHistory(char *totalCommand, deque<char *> &commandList)
     int num = commandList.size() > printMax ? printMax : commandList.size();
     if (temp.size() > 0)
     {
-        num = stoi(temp);
+        num = stoi(temp) > commandList.size() ? commandList.size() : stoi(temp);
     }
 
     vector<char *> commands(commandList.begin(), commandList.end());

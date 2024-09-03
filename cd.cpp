@@ -76,8 +76,6 @@ void execCD(char *firstArg, char *totalCommand)
             setCurrDirectory(directoryName);
             currentDir = getCurrentDirectory();
             prevDir = temp;
-            cout << currentDir << endl;
-            cout << prevDir << endl;
         }
         else
         {
@@ -97,8 +95,6 @@ void execCD(char *firstArg, char *totalCommand)
             setCurrDirectory(dummy);
             currentDir = getCurrentDirectory();
             prevDir = temp2;
-            cout << currentDir << endl;
-            cout << prevDir << endl;
         }
     }
 }

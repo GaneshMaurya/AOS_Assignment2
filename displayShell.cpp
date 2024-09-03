@@ -16,7 +16,7 @@ void handleZ(int num)
     if (pid != -1)
     {
         cout << "Terminated\n";
-        kill(pid, SIGTSTP);
+        kill(pid, SIGCONT);
         pid = 0;
     }
     cout << pid << endl;
@@ -47,7 +47,7 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
 void startShell(deque<char *> &commandList)
 {
     signal(SIGINT, handleC);
-    // signal(SIGTSTP, handleZ);
+    signal(SIGCONT, handleZ);
     while (1)
     {
         char *buffer = (char *)malloc(BUFFER_SIZE);

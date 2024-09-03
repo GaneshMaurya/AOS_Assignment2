@@ -102,6 +102,26 @@ void printTime(struct stat fileInfo)
     cout << time << "\t";
 }
 
+// int calcTotal(const char *currDir)
+// {
+//     DIR *directory = opendir(currDir);
+//     struct dirent *directoryInfo = readdir(directory);
+//     struct stat fileStat;
+//     int total = 0;
+
+//     while (directoryInfo != NULL)
+//     {
+//         string path = getCurrentDirectory() + (string) "/" + directoryInfo->d_name;
+//         if (stat(path.c_str(), &fileStat))
+//         {
+//             total += fileStat.st_blocks;
+//         }
+//         directoryInfo = readdir(directory);
+//     }
+
+//     return total;
+// }
+
 void displayHiddenLs(const char *currDir)
 {
     struct stat dirInfo;
@@ -113,24 +133,28 @@ void displayHiddenLs(const char *currDir)
         return;
     }
 
-    int total = 0;
-    cout << "total " << dirInfo.st_blocks << "\n";
+    // int total = calcTotal(currDir);
+    // cout << "total " << total << "\n";
 
     char *username = (char *)malloc(BUFFER_SIZE);
     char *buffer = (char *)malloc(BUFFER_SIZE);
 
-    DIR *directory = opendir(getCurrentDirectory());
+    DIR *directory = opendir(currDir);
     struct dirent *directoryInfo = readdir(directory);
+
+    int total = 0;
 
     while (directoryInfo != NULL)
     {
         struct stat fileInfo;
         string fname = directoryInfo->d_name;
-        string path = getCurrentDirectory() + (string) "/" + fname;
+        string path = (string)currDir + (string) "/" + fname;
 
         stat(path.c_str(), &fileInfo);
         string perms = permissions(fileInfo);
         cout << perms << "\t";
+
+        total += fileInfo.st_blocks;
 
         cout << fileInfo.st_nlink << "\t";
 
@@ -154,6 +178,8 @@ void displayHiddenLs(const char *currDir)
         directoryInfo = readdir(directory);
     }
 
+    cout << "total " << total << endl;
+
     closedir(directory);
 }
 
@@ -168,14 +194,16 @@ void displayLs(const char *currDir)
         return;
     }
 
-    int total = 0;
-    cout << "total " << dirInfo.st_blocks << "\n";
+    // int total = calcTotal(currDir);
+    // cout << "total " << total << "\n";
 
     char *username = (char *)malloc(BUFFER_SIZE);
     char *buffer = (char *)malloc(BUFFER_SIZE);
 
-    DIR *directory = opendir(getCurrentDirectory());
+    DIR *directory = opendir(currDir);
     struct dirent *directoryInfo = readdir(directory);
+
+    int total = 0;
 
     while (directoryInfo != NULL)
     {
@@ -183,11 +211,13 @@ void displayLs(const char *currDir)
         {
             struct stat fileInfo;
             string fname = directoryInfo->d_name;
-            string path = getCurrentDirectory() + (string) "/" + fname;
+            string path = (string)currDir + (string) "/" + fname;
 
             stat(path.c_str(), &fileInfo);
             string perms = permissions(fileInfo);
             cout << perms << "\t";
+
+            total += fileInfo.st_blocks;
 
             cout << fileInfo.st_nlink << "\t";
 
@@ -211,6 +241,8 @@ void displayLs(const char *currDir)
         }
         directoryInfo = readdir(directory);
     }
+
+    cout << "total " << total << endl;
 
     closedir(directory);
 }
@@ -289,21 +321,133 @@ void execLs(char *firstArg, char *totalCommand)
             const char *currDir = getCurrentDirectory();
             displayHiddenLs(currDir);
         }
-    }
-    else if (v.size() == 3)
-    {
-        if (strcmp(v[1], "-a") == 0 && strcmp(v[2], "-l"))
+        else
         {
-            const char *currDir = getCurrentDirectory();
-            displayHiddenLs(currDir);
-        }
-        else if (strcmp(v[1], "-l") == 0 && strcmp(v[2], "-a"))
-        {
-            const char *currDir = getCurrentDirectory();
-            displayHiddenLs(currDir);
+            string temp = v[1];
+            char *directoryName = new char[BUFFER_SIZE];
+            strcpy(directoryName, temp.c_str());
+            printFiles(directoryName);
         }
     }
+    // else if (v.size() == 3)
+    // {
+    //     if (strcmp(v[1], "-a") == 0 && strcmp(v[2], "-l") == 0)
+    //     {
+    //         const char *currDir = getCurrentDirectory();
+    //         displayHiddenLs(currDir);
+    //     }
+    //     else if (strcmp(v[1], "-l") == 0 && strcmp(v[2], "-a") == 0)
+    //     {
+    //         const char *currDir = getCurrentDirectory();
+    //         displayHiddenLs(currDir);
+    //     }
+    //     else
+    //     {
+    //         string flag = v[1];
+    //         string directoryName = getCurrentDirectory() + (string) "/" + v[2];
+
+    //         if (strcmp(v[1], "-a") == 0)
+    //         {
+    //             char *dirName = new char[BUFFER_SIZE];
+    //             strcpy(dirName, directoryName.c_str());
+    //             cout << dirName << endl;
+    //             printHiddenFiles(dirName);
+    //         }
+    //         else if (strcmp(v[1], "-l") == 0)
+    //         {
+    //             cout << directoryName << endl;
+    //             displayLs(directoryName.c_str());
+    //         }
+    //         else if (strcmp(v[1], "-la") == 0)
+    //         {
+    //             cout << directoryName << endl;
+    //             displayHiddenLs(directoryName.c_str());
+    //         }
+    //         else if (strcmp(v[1], "-al") == 0)
+    //         {
+    //             cout << directoryName << endl;
+    //             displayHiddenLs(directoryName.c_str());
+    //         }
+    //     }
+    // }
     else
     {
+        vector<string> dirs;
+
+        bool a = false;
+        bool l = false;
+        for (int i = 1; i < v.size(); i++)
+        {
+            if (strcmp(v[i], "-a") == 0)
+            {
+                a = true;
+            }
+            else if (strcmp(v[i], "-l") == 0)
+            {
+                l = true;
+            }
+            else
+            {
+                dirs.push_back(v[i]);
+            }
+        }
+
+        // string A = a == true ? "true" : "false";
+        // string L = l == true ? "true" : "false";
+        // cout << "a : " << A << endl;
+        // cout << "l : " << L << endl;
+
+        // cout << "Directories\n";
+        // for (int i = 0; i < dirs.size(); i++)
+        // {
+        //     cout << dirs[i] << endl;
+        // }
+
+        if (dirs.size() == 0)
+        {
+            if (a == true && l == true)
+            {
+                string directoryName = getCurrentDirectory();
+                displayHiddenLs(directoryName.c_str());
+            }
+            else if (a == true)
+            {
+                string temp = getCurrentDirectory();
+                char *directoryName = new char[BUFFER_SIZE];
+                strcpy(directoryName, temp.c_str());
+                printHiddenFiles(directoryName);
+            }
+            else if (l == true)
+            {
+                string directoryName = getCurrentDirectory();
+                displayLs(directoryName.c_str());
+            }
+
+            return;
+        }
+
+        for (int i = 0; i < dirs.size(); i++)
+        {
+            if (a == true && l == true)
+            {
+                string directoryName = getCurrentDirectory() + (string) "/" + dirs[i];
+                // cout << directoryName << endl;
+                displayHiddenLs(directoryName.c_str());
+            }
+            else if (a == true)
+            {
+                string temp = getCurrentDirectory() + (string) "/" + dirs[i];
+                char *directoryName = new char[BUFFER_SIZE];
+                strcpy(directoryName, temp.c_str());
+                // cout << directoryName << endl;
+                printHiddenFiles(directoryName);
+            }
+            else if (l == true)
+            {
+                string directoryName = getCurrentDirectory() + (string) "/" + dirs[i];
+                // cout << directoryName << endl;
+                displayLs(directoryName.c_str());
+            }
+        }
     }
 }

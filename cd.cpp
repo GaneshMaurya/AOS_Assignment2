@@ -43,7 +43,11 @@ void execCD(char *firstArg, char *totalCommand)
     else if (directoryName == NULL)
     {
         // Base case - only cd
-        // Do nothing
+        string temp = currentDir;
+        chdir(getHome());
+        setCurrDirectory(getHome());
+        currentDir = getCurrentDirectory();
+        prevDir = temp;
     }
     else if (strcmp(directoryName, ".") == 0)
     {

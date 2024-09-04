@@ -14,6 +14,11 @@ using namespace std;
 void printFiles(char *currDirectory)
 {
     DIR *directory = opendir(currDirectory);
+    if (directory == NULL)
+    {
+        cout << "ls: cannot access '" << currDirectory << "' : No such file or directory\n";
+        return;
+    }
     struct dirent *dirInfo = readdir(directory);
 
     while (dirInfo != NULL)
@@ -32,6 +37,11 @@ void printFiles(char *currDirectory)
 void printHiddenFiles(char *currDirectory)
 {
     DIR *directory = opendir(currDirectory);
+    if (directory == NULL)
+    {
+        cout << "ls: cannot access '" << currDirectory << "' : No such file or directory\n";
+        return;
+    }
     struct dirent *dirInfo = readdir(directory);
 
     while (dirInfo != NULL)
@@ -109,7 +119,7 @@ void displayHiddenLs(const char *currDir)
 
     if (stat(currDir, &dirInfo) == -1)
     {
-        cout << "There is some error in getting the details of the folder.\n";
+        cout << "ls: cannot access '" << currDir << "' : No such file or directory\n";
         return;
     }
 
@@ -120,6 +130,11 @@ void displayHiddenLs(const char *currDir)
     char *buffer = (char *)malloc(BUFFER_SIZE);
 
     DIR *directory = opendir(currDir);
+    if (directory == NULL)
+    {
+        cout << "ls: cannot access '" << currDir << "' : No such file or directory\n";
+        return;
+    }
     struct dirent *directoryInfo = readdir(directory);
 
     int total = 0;
@@ -189,7 +204,7 @@ void displayLs(const char *currDir)
 
     if (stat(currDir, &dirInfo) == -1)
     {
-        cout << "There is some error in getting the details of the folder.\n";
+        cout << "ls: cannot access '" << currDir << "' : No such file or directory\n";
         return;
     }
 
@@ -200,6 +215,11 @@ void displayLs(const char *currDir)
     char *buffer = (char *)malloc(BUFFER_SIZE);
 
     DIR *directory = opendir(currDir);
+    if (directory == NULL)
+    {
+        cout << "ls: cannot access '" << currDir << "' : No such file or directory\n";
+        return;
+    }
     struct dirent *directoryInfo = readdir(directory);
 
     int total = 0;
@@ -465,6 +485,12 @@ void execLs(char *firstArg, char *totalCommand)
                 printHiddenFiles(directoryName);
             }
             else if (l == true)
+            {
+                string directoryName = getCurrentDirectory() + (string) "/" + dirs[i];
+                // cout << directoryName << endl;
+                displayLs(directoryName.c_str());
+            }
+            else
             {
                 string directoryName = getCurrentDirectory() + (string) "/" + dirs[i];
                 // cout << directoryName << endl;

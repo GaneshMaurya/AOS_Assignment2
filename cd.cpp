@@ -71,6 +71,7 @@ void execCD(char *firstArg, char *totalCommand)
     }
     else if (strcmp(directoryName, "-") == 0)
     {
+        cout << prevDir << "\n";
 
         string temp = currentDir;
 

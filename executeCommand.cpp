@@ -6,8 +6,6 @@ using namespace std;
 #include "header.h"
 #define BUFFER_SIZE 1024
 
-pid_t processId = 0;
-
 bool containsLastAnd(char *str)
 {
     string command = str;
@@ -62,20 +60,55 @@ bool containsRedirection(char *str)
     return false;
 }
 
-int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandList)
+pid_t processId;
+pid_t foregroundProcessId = -1;
+pid_t backgroundProcessId = -1;
+
+void handleZ(int num)
 {
-    if (containsPipe(totalCommand))
+    // Push foreground to background
+
+    if (foregroundProcessId > 0 && foregroundProcessId != processId)
     {
+        cout << "Terminated\n";
+        kill(foregroundProcessId, SIGTSTP);
+        backgroundProcessId = foregroundProcessId;
+        foregroundProcessId = -1;
+    }
+}
+
+void handleC(int num)
+{
+    // Interrupt the foreground process
+
+    if (foregroundProcessId > 0)
+    {
+        cout << "Interrupted\n";
+        kill(foregroundProcessId, SIGINT);
+        foregroundProcessId = -1;
+    }
+}
+
+int executeCommand(pid_t processId, char *firstArg, char *totalCommand, deque<char *> &commandList)
+{
+    signal(SIGINT, handleC);
+    signal(SIGCONT, handleZ);
+
+    if (containsPipe(totalCommand) == true)
+    {
+        // cout << totalCommand << endl;
         execPipe(firstArg, totalCommand);
     }
     else if (containsRedirection(totalCommand) == true)
     {
         string temp = totalCommand;
         execRedirection(temp);
+        // cout << totalCommand << endl;
+        // execRedirection(firstArg, totalCommand);
     }
     else if (containsLastAnd(totalCommand) == true)
     {
-        // processId = execBackground(firstArg, totalCommand);
+        // Background Process
         char *args[BUFFER_SIZE];
         int i = 0;
         char *tempCommand = strdup(totalCommand);
@@ -92,14 +125,14 @@ int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLis
         }
         args[i] = NULL;
 
-        pid_t processId = fork();
+        pid_t pid = fork();
 
-        if (processId < 0)
+        if (pid < 0)
         {
             printf("Error in creating child process.\n");
         }
 
-        if (processId == 0)
+        if (pid == 0)
         {
             if (setpgid(0, 0) < -1)
             {
@@ -112,7 +145,8 @@ int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLis
         }
         else
         {
-            cout << processId << "\n";
+            backgroundProcessId = pid;
+            cout << backgroundProcessId << "\n";
         }
     }
     else if (strcmp(firstArg, "pwd") == 0)
@@ -145,6 +179,8 @@ int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLis
     }
     else
     {
+        // Foreground and default execvp
+
         char *args[BUFFER_SIZE];
         int i = 0;
         char *tempCommand = strdup(totalCommand);
@@ -158,13 +194,13 @@ int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLis
         }
         args[i] = NULL;
 
-        processId = fork();
-        if (processId < 0)
+        pid_t pid = fork();
+        if (pid < 0)
         {
             printf("Error in creating child process.\n");
         }
 
-        if (processId == 0)
+        if (pid == 0)
         {
             if (execvp(firstArg, args) < 0)
             {
@@ -173,8 +209,18 @@ int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLis
         }
         else
         {
-            wait(NULL);
+            foregroundProcessId = pid;
+            waitpid(foregroundProcessId, NULL, 0);
+            foregroundProcessId = -1;
         }
     }
-    return (processId != 0) ? processId : -1;
+
+    if (foregroundProcessId > 0)
+    {
+        return foregroundProcessId;
+    }
+    else
+    {
+        return backgroundProcessId;
+    }
 }

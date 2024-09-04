@@ -9,29 +9,6 @@ using namespace std;
 #define BUFFER_SIZE 1024
 #define historySize 20
 
-pid_t pid = -1;
-
-void handleZ(int num)
-{
-    if (pid != -1)
-    {
-        cout << "Terminated\n";
-        kill(pid, SIGCONT);
-        pid = 0;
-    }
-    cout << pid << endl;
-}
-
-void handleC(int num)
-{
-    if (pid != -1)
-    {
-        cout << "Interrupted\n";
-        kill(pid, SIGINT);
-        pid = 0;
-    }
-}
-
 string getTerminalName(struct passwd userDetails, char *hostname, string workingDir)
 {
     string terminal = userDetails.pw_name;
@@ -44,10 +21,17 @@ string getTerminalName(struct passwd userDetails, char *hostname, string working
     return terminal;
 }
 
+// pid_t processId = getpid();
+// pid_t foregroundProcessId = -1;
+// pid_t backgroundProcessId = -1;
+
 void startShell(deque<char *> &commandList)
 {
-    signal(SIGINT, handleC);
-    signal(SIGCONT, handleZ);
+    // signal(SIGINT, handleC);
+    // signal(SIGTSTP, handleZ);
+
+    pid_t processId = getpid();
+
     while (1)
     {
         char *buffer = (char *)malloc(BUFFER_SIZE);
@@ -139,6 +123,8 @@ void startShell(deque<char *> &commandList)
 
         // Tokenize the input
         char *command = strtok(commands, ";");
+        // command = strtok(commands, " ");
+        // command = strtok(commands, "\t");
         if (strcmp(command, "exit") == 0)
         {
             if (commandList.size() < 20)
@@ -233,7 +219,7 @@ void startShell(deque<char *> &commandList)
         {
             char *temp = strdup(listEl);
             char *firstArg = strtok(temp, " ");
-            pid = executeCommand(firstArg, listEl, commandList);
+            pid_t pid = executeCommand(processId, firstArg, listEl, commandList);
         }
     }
 

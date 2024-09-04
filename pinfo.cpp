@@ -8,8 +8,19 @@ void execPinfo(char *firstArg, char *totalCommand)
 {
     char *temp = strtok(totalCommand, " ");
     temp = strtok(NULL, " ");
+    string ppid;
 
-    string processId = temp;
+    if (temp == NULL)
+    {
+        pid_t pid = getpid();
+        ppid = to_string(pid);
+    }
+    else
+    {
+        ppid = temp;
+    }
+
+    string processId = ppid;
     string procFile = "/proc/" + processId + "/stat";
     ifstream file(procFile);
 

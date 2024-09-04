@@ -1,6 +1,6 @@
 void startShell(deque<char *> &commandList);
 
-int executeCommand(char *firstArg, char *command, deque<char *> &commandList);
+int executeCommand(pid_t processId, char *firstArg, char *command, deque<char *> &commandList);
 
 void printCurrDirectory();
 
@@ -35,3 +35,9 @@ int execBackground(char *firstArg, char *totalCommand);
 void execPipe(char *firstArg, char *totalCommand);
 
 void execRedirection(string totalCommand);
+
+// void execRedirection(char *firstArg, char *totalCommand);
+
+void handleZ(int num);
+
+void handleC(int num);

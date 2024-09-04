@@ -41,3 +41,5 @@ void execRedirection(string totalCommand);
 void handleZ(int num);
 
 void handleC(int num);
+
+void execPipeIO(char *firstArg, char *totalCommand);

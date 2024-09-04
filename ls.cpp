@@ -93,34 +93,14 @@ string permissions(struct stat fileInfo)
     return perm;
 }
 
-void printTime(struct stat fileInfo)
+string printTime(struct stat fileInfo)
 {
     struct tm *info = localtime(&fileInfo.st_mtime);
     char *time = new char[BUFFER_SIZE];
     strftime(time, BUFFER_SIZE, "%b %d %H:%M", info);
 
-    cout << time << "\t";
+    return time;
 }
-
-// int calcTotal(const char *currDir)
-// {
-//     DIR *directory = opendir(currDir);
-//     struct dirent *directoryInfo = readdir(directory);
-//     struct stat fileStat;
-//     int total = 0;
-
-//     while (directoryInfo != NULL)
-//     {
-//         string path = getCurrentDirectory() + (string) "/" + directoryInfo->d_name;
-//         if (stat(path.c_str(), &fileStat))
-//         {
-//             total += fileStat.st_blocks;
-//         }
-//         directoryInfo = readdir(directory);
-//     }
-
-//     return total;
-// }
 
 void displayHiddenLs(const char *currDir)
 {
@@ -143,6 +123,7 @@ void displayHiddenLs(const char *currDir)
     struct dirent *directoryInfo = readdir(directory);
 
     int total = 0;
+    string printFull = "";
 
     while (directoryInfo != NULL)
     {
@@ -152,33 +133,51 @@ void displayHiddenLs(const char *currDir)
 
         stat(path.c_str(), &fileInfo);
         string perms = permissions(fileInfo);
-        cout << perms << "\t";
+        // cout << perms << "\t";
+        printFull += perms;
+        printFull += "\t";
 
         total += fileInfo.st_blocks;
 
-        cout << fileInfo.st_nlink << "\t";
+        // cout << fileInfo.st_nlink << "\t";
+        printFull += to_string(fileInfo.st_nlink);
+        printFull += "\t";
 
         struct passwd userDetails;
         struct passwd *result1;
 
         getpwuid_r(dirInfo.st_uid, &userDetails, buffer, BUFFER_SIZE, &result1);
-        cout << userDetails.pw_name << "\t";
+        // cout << userDetails.pw_name << "\t";
+
+        printFull += userDetails.pw_name;
+        printFull += "\t";
 
         struct passwd groupDetails;
         struct passwd *result2;
 
         getpwuid_r(dirInfo.st_gid, &groupDetails, buffer, BUFFER_SIZE, &result2);
-        cout << userDetails.pw_name << "\t";
-        cout << fileInfo.st_size << "\t";
+        // cout << userDetails.pw_name << "\t";
+        // cout << fileInfo.st_size << "\t";
 
-        printTime(fileInfo);
-        cout << directoryInfo->d_name << "\t";
+        printFull += userDetails.pw_name;
+        printFull += "\t";
+        printFull += to_string(fileInfo.st_size);
+        printFull += "\t";
 
-        cout << "\n";
+        printFull += printTime(fileInfo);
+        printFull += "\t";
+        // cout << directoryInfo->d_name << "\t";
+
+        // cout << "\n";
+        printFull += directoryInfo->d_name;
+        printFull += "\t";
+        printFull += "\n";
+
         directoryInfo = readdir(directory);
     }
 
-    cout << "total " << total << endl;
+    cout << "total " << total << "\n";
+    cout << printFull;
 
     closedir(directory);
 }
@@ -204,6 +203,7 @@ void displayLs(const char *currDir)
     struct dirent *directoryInfo = readdir(directory);
 
     int total = 0;
+    string printFull = "";
 
     while (directoryInfo != NULL)
     {
@@ -215,34 +215,51 @@ void displayLs(const char *currDir)
 
             stat(path.c_str(), &fileInfo);
             string perms = permissions(fileInfo);
-            cout << perms << "\t";
+            // cout << perms << "\t";
+            printFull += perms;
+            printFull += "\t";
 
             total += fileInfo.st_blocks;
 
-            cout << fileInfo.st_nlink << "\t";
+            // cout << fileInfo.st_nlink << "\t";
+            printFull += to_string(fileInfo.st_nlink);
+            printFull += "\t";
 
             struct passwd userDetails;
             struct passwd *result1;
 
             getpwuid_r(dirInfo.st_uid, &userDetails, buffer, BUFFER_SIZE, &result1);
-            cout << userDetails.pw_name << "\t";
+            // cout << userDetails.pw_name << "\t";
+
+            printFull += userDetails.pw_name;
+            printFull += "\t";
 
             struct passwd groupDetails;
             struct passwd *result2;
 
             getpwuid_r(dirInfo.st_gid, &groupDetails, buffer, BUFFER_SIZE, &result2);
-            cout << userDetails.pw_name << "\t";
-            cout << fileInfo.st_size << "\t";
+            // cout << userDetails.pw_name << "\t";
+            // cout << fileInfo.st_size << "\t";
 
-            printTime(fileInfo);
-            cout << directoryInfo->d_name << "\t";
+            printFull += userDetails.pw_name;
+            printFull += "\t";
+            printFull += to_string(fileInfo.st_size);
+            printFull += "\t";
 
-            cout << "\n";
+            printFull += printTime(fileInfo);
+            printFull += "\t";
+            // cout << directoryInfo->d_name << "\t";
+
+            // cout << "\n";
+            printFull += directoryInfo->d_name;
+            printFull += "\t";
+            printFull += "\n";
         }
         directoryInfo = readdir(directory);
     }
 
-    cout << "total " << total << endl;
+    cout << "total " << total << "\n";
+    cout << printFull;
 
     closedir(directory);
 }
@@ -350,7 +367,7 @@ void execLs(char *firstArg, char *totalCommand)
     //         {
     //             char *dirName = new char[BUFFER_SIZE];
     //             strcpy(dirName, directoryName.c_str());
-    //             cout << dirName << endl;
+    //             // cout << dirName << endl;
     //             printHiddenFiles(dirName);
     //         }
     //         else if (strcmp(v[1], "-l") == 0)
@@ -378,7 +395,12 @@ void execLs(char *firstArg, char *totalCommand)
         bool l = false;
         for (int i = 1; i < v.size(); i++)
         {
-            if (strcmp(v[i], "-a") == 0)
+            if (strcmp(v[i], "-al") == 0 || strcmp(v[i], "-la") == 0)
+            {
+                a = true;
+                l = true;
+            }
+            else if (strcmp(v[i], "-a") == 0)
             {
                 a = true;
             }

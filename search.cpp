@@ -24,6 +24,21 @@ bool isDirectory(string path)
     return false;
 }
 
+// bool containsSlash(string path)
+// {
+//     int n = path.size();
+//     for (int i = 0; i < n; i++)
+//     {
+//         if (path[i] == '/')
+//         {
+//             cout << "contains slash\n";
+//             return true;
+//         }
+//     }
+
+//     return false;
+// }
+
 bool dfs(string fileName, string folderName)
 {
     DIR *directory = opendir(folderName.c_str());
@@ -31,6 +46,25 @@ bool dfs(string fileName, string folderName)
     {
         return false;
     }
+
+    // string newFileName = "";
+    // int n = fileName.size();
+    // if (containsSlash(fileName) == true)
+    // {
+    //     for (int i = 0; i < n; i++)
+    //     {
+    //         if (fileName[i] != '/')
+    //         {
+    //             newFileName += fileName[i];
+    //         }
+    //         else
+    //         {
+    //             break;
+    //         }
+    //     }
+
+    //     fileName = newFileName;
+    // }
 
     struct dirent *dirInfo = readdir(directory);
     while (dirInfo != NULL)

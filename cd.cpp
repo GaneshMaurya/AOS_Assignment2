@@ -9,8 +9,24 @@ using namespace std;
 string prevDir = "";
 string currentDir = "";
 
+int countArgs(string totalCommand)
+{
+    int ans = 0;
+    for (int i = 0; i < totalCommand.size(); i++)
+    {
+        if (totalCommand[i] == ' ')
+        {
+            ans++;
+        }
+    }
+
+    return ans + 1;
+}
+
 void execCD(char *firstArg, char *totalCommand)
 {
+    int arguments = countArgs(totalCommand);
+
     char *dummy = strtok(totalCommand, " ");
     char *directoryName = strtok(NULL, " ");
 
@@ -20,9 +36,13 @@ void execCD(char *firstArg, char *totalCommand)
         prevDir = getCurrentDirectory();
     }
 
-    // Base case - only cd
-    if (directoryName == NULL)
+    if (arguments > 2)
     {
+        cout << "bash: cd: too many arguments\n";
+    }
+    else if (directoryName == NULL)
+    {
+        // Base case - only cd
         // Do nothing
     }
     else if (strcmp(directoryName, ".") == 0)
@@ -68,8 +88,7 @@ void execCD(char *firstArg, char *totalCommand)
         {
             if (chdir(directoryName) < 0)
             {
-                cout << "Chdir failed.\n"
-                     << endl;
+                cout << "bash: cd: " << "directoryName" << ": No such file or directory\n";
                 return;
             }
             string temp = currentDir;
@@ -81,8 +100,7 @@ void execCD(char *firstArg, char *totalCommand)
         {
             if (chdir(directoryName) < 0)
             {
-                cout << "Chdir failed.\n"
-                     << endl;
+                cout << "bash: cd: " << "directoryName" << ": No such file or directory\n";
                 return;
             }
             string temp = getCurrentDirectory();

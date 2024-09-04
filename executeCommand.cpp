@@ -60,6 +60,35 @@ bool containsRedirection(char *str)
     return false;
 }
 
+bool containsPipeAndIO(char *str)
+{
+    int n = strlen(str);
+    bool pipe = false;
+    bool io = false;
+    for (int i = 0; i < n; i++)
+    {
+        if (str[i] == '|')
+        {
+            pipe = true;
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        if (str[i] == '<' || str[i] == '>')
+        {
+            io = true;
+        }
+    }
+
+    if (pipe == true && io == true)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 pid_t processId;
 pid_t foregroundProcessId = -1;
 pid_t backgroundProcessId = -1;
@@ -94,17 +123,18 @@ int executeCommand(pid_t processId, char *firstArg, char *totalCommand, deque<ch
     signal(SIGINT, handleC);
     signal(SIGCONT, handleZ);
 
-    if (containsPipe(totalCommand) == true)
+    if (containsPipeAndIO(totalCommand) == true)
     {
-        // cout << totalCommand << endl;
+        execPipeIO(firstArg, totalCommand);
+    }
+    else if (containsPipe(totalCommand) == true)
+    {
         execPipe(firstArg, totalCommand);
     }
     else if (containsRedirection(totalCommand) == true)
     {
         string temp = totalCommand;
         execRedirection(temp);
-        // cout << totalCommand << endl;
-        // execRedirection(firstArg, totalCommand);
     }
     else if (containsLastAnd(totalCommand) == true)
     {

@@ -70,7 +70,8 @@ int executeCommand(char *firstArg, char *totalCommand, deque<char *> &commandLis
     }
     else if (containsRedirection(totalCommand) == true)
     {
-        execRedirection(firstArg, totalCommand);
+        string temp = totalCommand;
+        execRedirection(temp);
     }
     else if (containsLastAnd(totalCommand) == true)
     {

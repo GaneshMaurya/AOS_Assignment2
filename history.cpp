@@ -34,7 +34,7 @@ void initHistory(deque<char *> &commandList)
     }
     else
     {
-        printf("Error in creating the history file.\n");
+        // printf("Error in creating the history file.\n");
         return;
     }
 }
@@ -58,7 +58,7 @@ void writeHistoryToFile(deque<char *> &commandList)
     }
     else
     {
-        printf("Error in creating the history file.\n");
+        printf("Error in writing to the history file.\n");
         return;
     }
 }
@@ -76,7 +76,7 @@ void printHistory(char *totalCommand, deque<char *> &commandList)
     int num = commandList.size() > printMax ? printMax : commandList.size();
     if (temp.size() > 0)
     {
-        num = stoi(temp) > commandList.size() ? commandList.size() : stoi(temp);
+        num = stoi(temp) > num ? num : stoi(temp);
     }
 
     vector<char *> commands(commandList.begin(), commandList.end());

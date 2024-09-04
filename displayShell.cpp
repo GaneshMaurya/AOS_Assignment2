@@ -143,12 +143,26 @@ void startShell(deque<char *> &commandList)
         {
             if (commandList.size() < 20)
             {
-                commandList.push_front(command);
+                if (commandList.empty())
+                {
+                    commandList.push_front(command);
+                }
+                else if (strcmp(commandList.front(), command) != 0)
+                {
+                    commandList.push_front(command);
+                }
             }
             else
             {
                 commandList.pop_back();
-                commandList.push_front(command);
+                if (commandList.empty())
+                {
+                    commandList.push_front(command);
+                }
+                else if (strcmp(commandList.front(), command) != 0)
+                {
+                    commandList.push_front(command);
+                }
             }
             return;
         }
@@ -160,12 +174,26 @@ void startShell(deque<char *> &commandList)
             {
                 if (commandList.size() < 20)
                 {
-                    commandList.push_front(command);
+                    if (commandList.empty())
+                    {
+                        commandList.push_front(command);
+                    }
+                    else if (strcmp(commandList.front(), command) != 0)
+                    {
+                        commandList.push_front(command);
+                    }
                 }
                 else
                 {
                     commandList.pop_back();
-                    commandList.push_front(command);
+                    if (commandList.empty())
+                    {
+                        commandList.push_front(command);
+                    }
+                    else if (strcmp(commandList.front(), command) != 0)
+                    {
+                        commandList.push_front(command);
+                    }
                 }
                 return;
             }
@@ -174,14 +202,28 @@ void startShell(deque<char *> &commandList)
             {
                 char *totalCommand = new char[BUFFER_SIZE];
                 strcpy(totalCommand, temp2.c_str());
-                commandList.push_front(totalCommand);
+                if (commandList.empty())
+                {
+                    commandList.push_front(totalCommand);
+                }
+                else if (strcmp(commandList.front(), totalCommand) != 0)
+                {
+                    commandList.push_front(totalCommand);
+                }
             }
             else
             {
                 char *totalCommand = new char[BUFFER_SIZE];
                 strcpy(totalCommand, temp2.c_str());
                 commandList.pop_back();
-                commandList.push_front(totalCommand);
+                if (commandList.empty())
+                {
+                    commandList.push_front(totalCommand);
+                }
+                else if (strcmp(commandList.front(), totalCommand) != 0)
+                {
+                    commandList.push_front(totalCommand);
+                }
             }
             list.push_back(command);
             command = strtok(NULL, ";");

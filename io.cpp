@@ -2,16 +2,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include <string>
-#include <algorithm>
-#include <cctype>
-#include <locale>
+#include <vector>
 using namespace std;
 
 #include "header.h"
+
 #define BUFFER_SIZE 1024
 
-void runRL(string left, string right, int fd)
+void runCommand(string command, int input_fd, int output_fd)
 {
     pid_t processId = fork();
 
@@ -19,60 +19,24 @@ void runRL(string left, string right, int fd)
     {
         printf("Error in creating child process.\n");
     }
-
-    if (processId == 0)
+    else if (processId == 0)
     {
-        if (fd != STDIN_FILENO)
+        if (input_fd != STDIN_FILENO)
         {
-            dup2(fd, STDIN_FILENO);
-            close(fd);
+            dup2(input_fd, STDIN_FILENO);
+            close(input_fd);
+        }
+
+        if (output_fd != STDOUT_FILENO)
+        {
+            dup2(output_fd, STDOUT_FILENO);
+            close(output_fd);
         }
 
         char *args[BUFFER_SIZE];
         int i = 0;
         char *temp = new char[BUFFER_SIZE];
-        strcpy(temp, left.c_str());
-        char *word = strtok(temp, " ");
-        while (word != NULL)
-        {
-            args[i] = word;
-            word = strtok(NULL, " ");
-            i++;
-        }
-        args[i] = NULL;
-
-        if (execvp(args[0], args) == -1)
-        {
-            printf("Error in executing %s command.\n", args[0]);
-        }
-    }
-    else
-    {
-        wait(NULL);
-    }
-}
-
-void runLR(string left, string right, int fd)
-{
-    pid_t processId = fork();
-
-    if (processId < 0)
-    {
-        printf("Error in creating child process.\n");
-    }
-
-    if (processId == 0)
-    {
-        if (fd != STDOUT_FILENO)
-        {
-            dup2(fd, STDOUT_FILENO);
-            close(fd);
-        }
-
-        char *args[BUFFER_SIZE];
-        int i = 0;
-        char *temp = new char[BUFFER_SIZE];
-        strcpy(temp, left.c_str());
+        strcpy(temp, command.c_str());
         char *word = strtok(temp, " ");
         while (word != NULL)
         {
@@ -94,44 +58,57 @@ void runLR(string left, string right, int fd)
     }
 }
 
-void execRedirection(char *firstArg, char *totalCommand)
+void execRedirection(string totalCommand)
 {
-    vector<string> commands;
-    string word = "";
-    for (int i = 0; i < strlen(totalCommand); i++)
+    vector<string> command;
+    stringstream ss(totalCommand);
+    string temp;
+
+    while (ss >> temp)
     {
-        if (totalCommand[i] != '<' && totalCommand[i] != '>')
+        command.push_back(temp);
+    }
+
+    // for (int i = 0; i < command.size(); i++)
+    // {
+    //     cout << command[i] << endl;
+    // }
+
+    int input_fd = STDIN_FILENO;
+    int output_fd = STDOUT_FILENO;
+    string cmd;
+
+    for (int i = 0; i < command.size(); i++)
+    {
+        if (command[i] == "<")
         {
-            word += totalCommand[i];
+            string path = getCurrentDirectory() + (string) "/" + command[i + 1];
+            input_fd = open(path.c_str(), O_RDONLY);
+            if (input_fd < 0)
+            {
+                cout << "Error in opening the file.\n";
+                return;
+            }
+        }
+        else if (command[i] == ">")
+        {
+            string path = getCurrentDirectory() + (string) "/" + command[i + 1];
+            output_fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (output_fd < 0)
+            {
+                cout << "Error in opening the file.\n";
+                return;
+            }
         }
         else
         {
-            commands.push_back(word);
-            string op = "";
-            op += totalCommand[i];
-            commands.push_back(op);
-            word = "";
+            if (cmd.size() > 0)
+            {
+                cmd += " ";
+            }
+            cmd += command[i];
         }
     }
 
-    if (!word.empty())
-    {
-        commands.push_back(word);
-    }
-
-    for (int i = 0; i < commands.size(); i++)
-    {
-        if (commands[i] == "<")
-        {
-            string path = getCurrentDirectory() + (string) "/" + commands[i + 1];
-            int fd = open(path.c_str(), O_RDWR);
-            runRL(commands[i - 1], commands[i + 1], fd);
-        }
-        else if (commands[i] == ">")
-        {
-            string path = getCurrentDirectory() + (string) "/" + commands[i + 1];
-            int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            runLR(commands[i - 1], commands[i + 1], fd);
-        }
-    }
+    runCommand(cmd, input_fd, output_fd);
 }
